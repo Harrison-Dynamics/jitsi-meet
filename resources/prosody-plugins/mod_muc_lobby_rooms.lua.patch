@@ -1,5 +1,5 @@
---- mod_muc_lobby_rooms.lua.original	2020-08-15 02:00:33.000000000 +0300
-+++ mod_muc_lobby_rooms.lua	2020-09-30 17:00:31.000000000 +0300
+--- mod_muc_lobby_rooms.lua.original    2020-08-15 02:00:33.000000000 +0300
++++ mod_muc_lobby_rooms.lua     2020-10-20 18:28:19.067219121 +0300
 @@ -27,6 +27,7 @@
  local jid_split = require 'util.jid'.split;
  local jid_bare = require 'util.jid'.bare;
@@ -45,12 +45,17 @@
          -- we want to add the custom lobbyroom field to fill in the lobby room jid
          local invitee = event.stanza.attr.from;
          local affiliation = room:get_affiliation(invitee);
-@@ -387,6 +409,8 @@
+@@ -387,6 +409,13 @@
              end
          end
      end);
 +
-+    host_module:hook('token-moderation-owner-enter', handle_create_lobby);
++    host_module:hook('token-moderation-owner-enter', function(event)
++        local room = event.room;
++        room:set_members_only(true);
++        module:log("info","Moderator entered. Set room jid = %s as members only",room.jid);
++        attach_lobby_room(room);
++    end);
  end);
  
  -- Extract 'room' param from URL when session is created
