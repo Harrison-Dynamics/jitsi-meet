@@ -1,0 +1,61 @@
+--- mod_muc_lobby_rooms.lua.original    2020-08-15 02:00:33.000000000 +0300
++++ mod_muc_lobby_rooms.lua     2020-10-20 18:28:19.067219121 +0300
+@@ -27,6 +27,7 @@
+ local jid_split = require 'util.jid'.split;
+ local jid_bare = require 'util.jid'.bare;
+ local json = require 'util.json';
++local basexx = require "basexx";
+ local filters = require 'util.filters';
+ local st = require 'util.stanza';
+ local MUC_NS = 'http://jabber.org/protocol/muc';
+@@ -320,7 +321,7 @@
+     end);
+ 
+     host_module:hook('muc-occupant-pre-join', function (event)
+-        local room, stanza = event.room, event.stanza;
++        local room, stanza, origin = event.room, event.stanza, event.origin;
+ 
+         if is_healthcheck_room(room.jid) or not room:get_members_only() then
+             return;
+@@ -357,6 +358,27 @@
+             end
+         end
+ 
++        if origin.auth_token then
++            -- Extract token body and decode it
++            local dotFirst = origin.auth_token:find("%.");
++            if dotFirst then
++                local dotSecond = origin.auth_token:sub(dotFirst + 1):find("%.");
++                if dotSecond then
++                    local bodyB64 = origin.auth_token:sub(dotFirst + 1, dotFirst + dotSecond - 1);
++                    local body = json.decode(basexx.from_url64(bodyB64));
++                    local jid = jid_bare(stanza.attr.from);
++                    -- If user is a moderator or an admin, set their affiliation to be an owner
++                    if body["moderator"] == true then
++                        event.occupant.role = 'participant';
++                        room:set_affiliation(true, invitee_bare_jid, 'member');
++                        room:save();
++                        return;
++                    end;
++                end;
++            end;
++        end;
++
++
+         -- we want to add the custom lobbyroom field to fill in the lobby room jid
+         local invitee = event.stanza.attr.from;
+         local affiliation = room:get_affiliation(invitee);
+@@ -387,6 +409,13 @@
+             end
+         end
+     end);
++
++    host_module:hook('token-moderation-owner-enter', function(event)
++        local room = event.room;
++        room:set_members_only(true);
++        module:log("info","Moderator entered. Set room jid = %s as members only",room.jid);
++        attach_lobby_room(room);
++    end);
+ end);
+ 
+ -- Extract 'room' param from URL when session is created

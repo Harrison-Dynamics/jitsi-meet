@@ -1,0 +1,10 @@
+--- mod_token_moderation.lua.original	2020-09-30 16:31:53.569506985 +0300
++++ mod_token_moderation.lua	2020-10-19 19:44:28.716737179 +0300
+@@ -58,6 +58,7 @@
+                                 -- If user is a moderator or an admin, set their affiliation to be an owner
+                                 if body["moderator"] == true or is_admin(jid) then
+                                         room:set_affiliation("token_plugin", jid, "owner");
++                                        module:fire_event("token-moderation-owner-enter", { room = room }, -1);
+                                 else
+                                         room:set_affiliation("token_plugin", jid, "member");
+                                 end;
