@@ -128,7 +128,8 @@ function _getWebWelcomePageRoute(state): Promise<Route> {
         let href = window.location.href;
 
         href.endsWith('/') || (href += '/');
-        route.href = href + generateRoomWithoutSeparator();
+        route.href = 'https://app.edus.ro';
+
     }
 
     return Promise.resolve(route);
