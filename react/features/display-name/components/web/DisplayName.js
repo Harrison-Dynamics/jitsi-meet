@@ -151,23 +151,6 @@ class DisplayName extends Component<Props, State> {
             t
         } = this.props;
 
-        if (allowEditing && this.state.isEditing) {
-            return (
-                <input
-                    autoFocus = { true }
-                    className = 'editdisplayname'
-                    id = 'editDisplayName'
-                    onBlur = { this._onSubmit }
-                    onChange = { this._onChange }
-                    onKeyDown = { this._onKeyDown }
-                    placeholder = { t('defaultNickname') }
-                    ref = { this._setNameInputRef }
-                    spellCheck = { 'false' }
-                    type = 'text'
-                    value = { this.state.editDisplayNameValue } />
-            );
-        }
-
         return (
             <span
                 className = 'displayname'
@@ -189,9 +172,7 @@ class DisplayName extends Component<Props, State> {
      * @returns {void}
      */
     _onChange(event) {
-        this.setState({
-            editDisplayNameValue: event.target.value
-        });
+
     }
 
     _onKeyDown: () => void;
@@ -204,9 +185,7 @@ class DisplayName extends Component<Props, State> {
      * @returns {void}
      */
     _onKeyDown(event) {
-        if (event.key === 'Enter') {
-            this._onSubmit();
-        }
+
     }
 
     _onStartEditing: () => void;
@@ -219,12 +198,7 @@ class DisplayName extends Component<Props, State> {
      * @returns {void}
      */
     _onStartEditing() {
-        if (this.props.allowEditing) {
-            this.setState({
-                isEditing: true,
-                editDisplayNameValue: this.props._configuredDisplayName
-            });
-        }
+
     }
 
     _onSubmit: () => void;
@@ -239,20 +213,7 @@ class DisplayName extends Component<Props, State> {
      * @returns {void}
      */
     _onSubmit() {
-        const { editDisplayNameValue } = this.state;
-        const { dispatch } = this.props;
 
-        // Store display name in settings
-        dispatch(updateSettings({
-            displayName: editDisplayNameValue
-        }));
-
-        this.setState({
-            isEditing: false,
-            editDisplayNameValue: ''
-        });
-
-        this._nameInput = null;
     }
 
     _setNameInputRef: (HTMLInputElement | null) => void;
